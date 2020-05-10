@@ -107,4 +107,14 @@ public class playerManager : MonoBehaviour
         }
     }
 
+    public void ChangeHealth(int value)
+    {
+        health += value;
+    }
+
+    public void ChangeScore(int value)
+    {
+        score += value;
+    }
+
 }
