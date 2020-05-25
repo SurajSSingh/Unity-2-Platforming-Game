@@ -7,6 +7,7 @@ public class playerManager : MonoBehaviour
 {
     // Player specific variables
     private int health;
+    [SerializeField]
     private int score;
 
     // Boolean values
@@ -19,9 +20,20 @@ public class playerManager : MonoBehaviour
     public GameObject winMenu;
     public GameObject loseMenu;
 
+    // Inventory stuff
+    private List<Collectable> inventory = new List<Collectable>();
+    public Text inventoryText;
+    public Text descriptionText;
+    private int currentIndex = 0;
+    public SaveBox saveBox;
+
     // Start is called before the first frame update
     void Start()
     {
+        if (saveBox == null)
+        {
+            saveBox = GameObject.Find("SaveBox").GetComponent<SaveBox>();
+        }
         // Makes sure game is "unpaused"
         isGamePaused = false;
         Time.timeScale = 1.0f;
@@ -30,8 +42,9 @@ public class playerManager : MonoBehaviour
         FindAllMenus();
 
         //Start player with initial health and score
-        health = 100;
-        score = 0;
+        health = saveBox.LoadHealth();
+        score = saveBox.LoadScore();
+        inventory = saveBox.LoadInventory();
     }
 
     // Update is called once per frame
@@ -47,6 +60,39 @@ public class playerManager : MonoBehaviour
         {
             LoseGame();
         }
+
+        // Handling Inventory
+        if (inventory.Count == 0)
+        {
+            inventoryText.text = "Nothing in Inventory";
+            descriptionText.text = "No Description";
+        }
+        else
+        {
+            inventoryText.text = "Currently selected: " + inventory[currentIndex].collectableName.ToString();
+            descriptionText.text = "Press [E] to " + inventory[currentIndex].description.ToString();
+            inventoryText.text = inventoryText + " " + currentIndex.ToString();
+        }
+
+        // Handle Inputs
+        if (Input.GetKeyDown(KeyCode.E) && inventory.Count > 0)
+        {
+            // Use Item
+            inventory[currentIndex].Use();
+            inventory.RemoveAt(currentIndex);
+            currentIndex = (currentIndex - 1) % inventory.Count;
+        }
+        if (Input.GetKeyDown(KeyCode.I) && inventory.Count > 0)
+        {
+            // Move to the next item in inventory (loop if at the end)
+            currentIndex = (currentIndex + 1) % inventory.Count;
+        }
+        if (Input.GetKeyDown(KeyCode.U) && inventory.Count > 0)
+        {
+            // Move to the prev item in inventory (loop if at the end)
+            currentIndex = (currentIndex - 1) % inventory.Count;
+        }
+
     }
 
    void FindAllMenus()
@@ -79,6 +125,7 @@ public class playerManager : MonoBehaviour
 
     public void WinGame()
     {
+        saveBox.Save(score, health, inventory);
         Time.timeScale = 0.0f;
         winMenu.SetActive(true);
     }
@@ -115,6 +162,16 @@ public class playerManager : MonoBehaviour
     public void ChangeScore(int value)
     {
         score += value;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.GetComponent<Collectable>() != null)
+        {
+            collision.GetComponent<Collectable>().player = this.gameObject;
+            inventory.Add(collision.GetComponent<Collectable>());
+            Destroy(collision.gameObject);
+        }
     }
 
 }
