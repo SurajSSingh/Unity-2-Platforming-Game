@@ -6,7 +6,7 @@ namespace NinjaController {
   [System.Serializable]
   public class PhysicsParams {
 
-    public float playerMass = 12.5f;
+    public float playerMass = 1200.5f;
     public float gameGravity = -19.5f;
     public float jumpUpForce = 0.25f;
     public float jumpUpVel = 18.75f;
