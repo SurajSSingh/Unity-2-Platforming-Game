@@ -171,5 +171,3 @@ MonoBehaviour:
   pauseMenu: {fileID: 0}
   winMenu: {fileID: 0}
   loseMenu: {fileID: 0}
-  inventoryText: {fileID: 0}
-  descriptionText: {fileID: 0}

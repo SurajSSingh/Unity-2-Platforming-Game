@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class playerManager : MonoBehaviour
 {
     // Player specific variables
-    // private int health;
+    private int health;
     private int score;
 
     // Boolean values
@@ -19,18 +19,9 @@ public class playerManager : MonoBehaviour
     public GameObject winMenu;
     public GameObject loseMenu;
 
-    // Inventory stuff
-    private List<Collectable> inventory = new List<Collectable>();
-    private int currentIndex = 0;
-    public Text inventoryText;
-    public Text descriptionText;
-
-    public PlayerInfo info;
-
     // Start is called before the first frame update
     void Start()
     {
-        info = GameObject.Find("PlayerInfo").GetComponent<PlayerInfo>();
         // Makes sure game is "unpaused"
         isGamePaused = false;
         Time.timeScale = 1.0f;
@@ -39,49 +30,22 @@ public class playerManager : MonoBehaviour
         FindAllMenus();
 
         //Start player with initial health and score
-        // info.health = 100;
+        health = 100;
         score = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
-        healthText.text = "Health: " + info.health.ToString();
+        healthText.text = "Health: " + health.ToString();
         scoreText.text  = "Score:  " + score.ToString();
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             PauseGame();
         }
-        if (info.health <= 0)
+        if (health <= 0)
         {
             LoseGame();
-        }
-        if (inventory.Count == 0)
-        {
-            inventoryText.text = "Nothing in inventory";
-            descriptionText.text = "";
-        }
-        else
-        {
-            inventoryText.text = "Current Item: "
-                + inventory[currentIndex].collectableName + " "
-                + currentIndex.ToString();
-            descriptionText.text = "Press [E] to " + inventory[currentIndex].description;
-        }
-
-        if (Input.GetKeyDown(KeyCode.E) && inventory.Count > 0)
-        {
-            inventory[currentIndex].Use();
-            inventory.RemoveAt(currentIndex);
-            if(inventory.Count > 0)
-            {
-                currentIndex = (currentIndex - 1) % inventory.Count;
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.I) && inventory.Count > 0)
-        {
-            currentIndex = (currentIndex + 1) % inventory.Count;
         }
     }
 
@@ -93,7 +57,6 @@ public class playerManager : MonoBehaviour
         }
         if (scoreText == null)
         {
-            Debug.Log(GameObject.Find("ScoreText"));
             scoreText = GameObject.Find("ScoreText").GetComponent<Text>();
         }
         if (winMenu == null)
@@ -145,22 +108,12 @@ public class playerManager : MonoBehaviour
 
     public void ChangeHealth(int value)
     {
-        info.health += value;
+        health += value;
     }
 
     public void ChangeScore(int value)
     {
         score += value;
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if(collision.gameObject.GetComponent<Collectable>() != null)
-        {
-            collision.gameObject.GetComponent<Collectable>().player = this.gameObject;
-            inventory.Add(collision.gameObject.GetComponent<Collectable>());
-            collision.gameObject.SetActive(false);
-        }
     }
 
 }
